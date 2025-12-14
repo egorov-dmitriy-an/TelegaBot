@@ -35,9 +35,11 @@ public class MyBot extends TelegramLongPollingBot {
                 sendMessage(chatId, "Доступные команды:\n/start — приветствие\n/help — помощь");
             } else {
                 sendMessage(chatId, "Вы написали: " + text);
-            } saveMessage (chatId, text);
+            }
+            saveMessage(chatId, text);
         }
     }
+
     private void sendMessage(Long chatId, String text) {
         SendMessage msg = new SendMessage(chatId.toString(), text);
         try {
@@ -46,7 +48,10 @@ public class MyBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
     private void saveMessage(Long chatId, String text) {
         System.out.println(chatId + " --- " + text);
+        Database.saveValue(chatId, text);
+        System.out.println("Сохранено в базу");
     }
- }
+}
