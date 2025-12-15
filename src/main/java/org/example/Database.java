@@ -20,8 +20,6 @@ public class Database {
         String sql = """
                 INSERT INTO users (chatid, message)
                 VALUES (?, ?)
-                ON CONFLICT (chatid)
-                DO UPDATE SET message = EXCLUDED.message
                 """;
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -56,9 +54,9 @@ public class Database {
 
     public static void init() {
         String sql = "CREATE TABLE users (\n" +
-                "    id BIGSERIAL PRIMARY KEY,\n" +
+                "    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n" +
                 "    chatid BIGINT NOT NULL,\n" +
-                "    message TEXT\n" +
+                "    message TEXT NOT NULL\n" +
                 ");";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement ps = conn.prepareStatement(sql)) {
