@@ -52,6 +52,26 @@ public class Database {
         return "Нет данных";
     }
 
+    public static void getAllValue() {
+        String sql = "SELECT chatid, message FROM users";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+            System.out.println("PreparedStatement is done");
+
+            while (rs.next()) {
+                Long chId = rs.getLong("chatid");
+                String str = rs.getString("message");
+                System.out.println(chId + " написал " + str);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void init() {
         String sql = "CREATE TABLE users (\n" +
                 "    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n" +

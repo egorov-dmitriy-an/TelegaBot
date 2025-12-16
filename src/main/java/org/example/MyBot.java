@@ -32,7 +32,18 @@ public class MyBot extends TelegramLongPollingBot {
             if (text.equals("/start")) {
                 sendMessage(chatId, "Привет! Я простой Java-Telegram-бот.");
             } else if (text.equals("/help")) {
-                sendMessage(chatId, "Доступные команды:\n/start — приветствие\n/help — помощь");
+                sendMessage(chatId, "Доступные команды:" +
+                        "\n/start — приветствие" +
+                        "\n/exit — выход" +
+                        "\n/show — посмотреть записи" +
+                        "\n/help — помощь");
+            } else if (text.equals("/exit")) {
+                sendMessage(chatId, "Вы закрыли бота");
+                saveMessage(chatId, text);
+                System.exit(1);
+            } else if (text.equals("/show")) {
+                sendMessage(chatId, "Вы решили посмотреть записи");
+                Database.getAllValue();
             } else {
                 sendMessage(chatId, "Вы написали: " + text);
             }
@@ -40,7 +51,7 @@ public class MyBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendMessage(Long chatId, String text) {
+    void sendMessage(Long chatId, String text) {
         SendMessage msg = new SendMessage(chatId.toString(), text);
         try {
             execute(msg);
