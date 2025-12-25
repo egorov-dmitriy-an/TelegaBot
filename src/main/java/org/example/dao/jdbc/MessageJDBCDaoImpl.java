@@ -4,6 +4,7 @@ import org.example.configuration.ConnectionManager;
 import org.example.dao.Dao;
 import org.example.dao.exception.DaoException;
 import org.example.model.Message;
+import org.example.model.Test;
 
 import java.sql.*;
 import java.time.Instant;
@@ -20,6 +21,12 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
                 last_name TEXT NOT NULL,
                 first_name  TEXT NOT NULL,
                 message TEXT NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE NOT NULL
+            );""";
+
+    private static final String CREATE_TABLE_SQL_2 = """
+            CREATE TABLE IF NOT EXISTS test (
+                id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL
             );""";
 
@@ -69,6 +76,12 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
             VALUES (?, ?, ?, ?, ?)
             """;
 
+    private static final String SAVE_SQL_2 = """
+            INSERT INTO test (
+                created_at)
+            VALUES (?)
+            """;
+
     private MessageJDBCDaoImpl() {
     }
 
@@ -86,6 +99,16 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
             throw new DaoException(e);
         }
     }
+//
+//    public void createTable2() {
+//        try (Connection connection = ConnectionManager.get();
+//             Statement statement = connection.createStatement()) {
+//            statement.executeUpdate(CREATE_TABLE_SQL_2);
+//            System.out.println("Создана таблица test");
+//        } catch (SQLException e) {
+//            throw new DaoException(e);
+//        }
+//    }
 
     @Override
     public void deleteTable() {
@@ -117,7 +140,7 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
             preparedStatement.setString(2, message.getLastNameAuthor());
             preparedStatement.setString(3, message.getFirstNameAuthor());
             preparedStatement.setString(4, message.getMessage());
-            preparedStatement.setObject(5, message.getInstant());
+            preparedStatement.setTimestamp(5, Timestamp.from(message.getInstant()));
             preparedStatement.executeUpdate();
             System.out.println("Обновлено сообщение: " + message.getId());
         } catch (SQLException e) {
@@ -189,11 +212,8 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
             preparedStatement.setString(2, message.getLastNameAuthor());
             preparedStatement.setString(3, message.getFirstNameAuthor());
             preparedStatement.setString(4, message.getMessage());
-
-
-            preparedStatement.setObject(5, message.getInstant());
-            System.out.println("ok");
-
+            preparedStatement.setTimestamp(5, Timestamp.from(message.getInstant())     );
+           System.out.println(preparedStatement);
 
             preparedStatement.executeUpdate();
 
@@ -206,4 +226,25 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
             throw new DaoException(e);
         }
     }
+
+//    public void save2(Test test) {
+//        System.out.println("зашли в метод 2");
+//        try (Connection connection = ConnectionManager.get();
+//             PreparedStatement preparedStatement = connection.prepareStatement(SAVE_SQL_2, Statement.RETURN_GENERATED_KEYS)) {
+//            System.out.println(preparedStatement);
+//            preparedStatement.setTimestamp(1, Timestamp.from(test.getInstant())
+//            );
+//            System.out.println("ok");
+//
+//            preparedStatement.executeUpdate();
+//
+//            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+//            if (generatedKeys.next()) {
+//                test.setId(generatedKeys.getLong("id"));
+//            }
+//            System.out.println("Создано test " + test.getId());
+//        } catch (SQLException e) {
+//            throw new DaoException(e);
+//        }
+//    }
 }
