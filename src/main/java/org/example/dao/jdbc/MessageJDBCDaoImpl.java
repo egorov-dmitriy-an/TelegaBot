@@ -76,12 +76,6 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
             VALUES (?, ?, ?, ?, ?)
             """;
 
-    private static final String SAVE_SQL_2 = """
-            INSERT INTO test (
-                created_at)
-            VALUES (?)
-            """;
-
     private MessageJDBCDaoImpl() {
     }
 
@@ -99,16 +93,6 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
             throw new DaoException(e);
         }
     }
-//
-//    public void createTable2() {
-//        try (Connection connection = ConnectionManager.get();
-//             Statement statement = connection.createStatement()) {
-//            statement.executeUpdate(CREATE_TABLE_SQL_2);
-//            System.out.println("Создана таблица test");
-//        } catch (SQLException e) {
-//            throw new DaoException(e);
-//        }
-//    }
 
     @Override
     public void deleteTable() {
@@ -171,14 +155,13 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
                 resultSet.getString("last_name"),
                 resultSet.getString("first_name"),
                 resultSet.getString("message"),
-                resultSet.getObject("created_at", Instant.class));
+                resultSet.getTimestamp("created_at").toInstant());
     }
 
     @Override
     public List<Message> findAll() {
         try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ALL_SQL)) {
-            System.out.println(preparedStatement);
             ResultSet resultSet = preparedStatement.executeQuery();
             List<Message> messagesEntitiesList = new ArrayList<>();
             while (resultSet.next()) {
@@ -205,16 +188,13 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
 
     @Override
     public void save(Message message) {
-        System.out.println("зашли в метод");
         try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setLong(1, message.getChatId());
             preparedStatement.setString(2, message.getLastNameAuthor());
             preparedStatement.setString(3, message.getFirstNameAuthor());
             preparedStatement.setString(4, message.getMessage());
-            preparedStatement.setTimestamp(5, Timestamp.from(message.getInstant())     );
-           System.out.println(preparedStatement);
-
+            preparedStatement.setTimestamp(5, Timestamp.from(message.getInstant()));
             preparedStatement.executeUpdate();
 
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
@@ -227,24 +207,5 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
         }
     }
 
-//    public void save2(Test test) {
-//        System.out.println("зашли в метод 2");
-//        try (Connection connection = ConnectionManager.get();
-//             PreparedStatement preparedStatement = connection.prepareStatement(SAVE_SQL_2, Statement.RETURN_GENERATED_KEYS)) {
-//            System.out.println(preparedStatement);
-//            preparedStatement.setTimestamp(1, Timestamp.from(test.getInstant())
-//            );
-//            System.out.println("ok");
-//
-//            preparedStatement.executeUpdate();
-//
-//            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-//            if (generatedKeys.next()) {
-//                test.setId(generatedKeys.getLong("id"));
-//            }
-//            System.out.println("Создано test " + test.getId());
-//        } catch (SQLException e) {
-//            throw new DaoException(e);
-//        }
-//    }
+
 }

@@ -11,10 +11,8 @@ import java.time.Instant;
 public class Message {
     private Long id;
     private Long chatId;
-    private String message;
-    private String firstNameAuthor;
     private String lastNameAuthor;
+    private String firstNameAuthor;
+    private String message;
     private Instant instant;
-
-
 }

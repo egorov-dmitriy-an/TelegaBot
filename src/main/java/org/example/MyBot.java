@@ -16,7 +16,7 @@ public class MyBot extends TelegramLongPollingBot {
     private final String BOT_TOKEN = "8564599615:AAFzAviN_EIFsSsMwUHIPhF4uzKx_NguoSY";
     private final String BOT_USERNAME = "@telegaBelomorskBot";
     Message message;
-    MessageJDBCDaoImpl messageJDBCDao = MessageJDBCDaoImpl.getInstance();
+    MessageJDBCDaoImpl messageJDBCDao = JdbcRunner.messageJDBCDao;
     ;
 
     @Override
@@ -37,10 +37,10 @@ public class MyBot extends TelegramLongPollingBot {
                 sendMessage(update, "Привет! Я простой Java-Telegram-бот.");
             } else if (message.getMessage().equals("/help")) {
                 sendMessage(update, "Доступные команды:" +
-                                    "\n/start — приветствие" +
-                                    "\n/exit — выход" +
-                                    "\n/show — посмотреть записи" +
-                                    "\n/help — помощь");
+                        "\n/start — приветствие" +
+                        "\n/exit — выход" +
+                        "\n/show — посмотреть записи" +
+                        "\n/help — помощь");
             } else if (message.getMessage().equals("/exit")) {
                 sendMessage(update, "Вы закрыли бота");
                 saveMessage(update);
@@ -49,18 +49,16 @@ public class MyBot extends TelegramLongPollingBot {
                 sendMessage(update, "Вы решили посмотреть записи");
                 List<Message> lm = messageJDBCDao.findAll();
                 for (Message m : lm) {
-                    sendMessage(update, (m.getLastNameAuthor() + " " + m.getFirstNameAuthor() + ": " + m.getMessage()));
+                    sendMessage(update, (m.getLastNameAuthor() + " " + m.getFirstNameAuthor() + " - " + m.getMessage() + " " + m.getInstant().toString()));
                 }
             } else {
                 sendMessage(update, "Вы написали: " + message.getMessage());
             }
-            System.out.println("пробуем записать в базу");
             saveMessage(update);
         }
     }
 
     void sendMessage(Update update, String text) {
-
         SendMessage msg = new SendMessage(update.getMessage().getChatId().toString(), text);
         try {
             execute(msg);
@@ -70,20 +68,18 @@ public class MyBot extends TelegramLongPollingBot {
     }
 
     private void saveMessage(Update update) {
-        System.out.println("запуск записи");
         Message mess = createMessage(update);
         System.out.println(mess);
         messageJDBCDao.save(mess);
-        System.out.println("Сохранено в базу");
     }
 
 
     private Message createMessage(Update update) {
         return new Message(1L,
                 update.getMessage().getChatId(),
-                update.getMessage().getText(),
                 update.getMessage().getFrom().getLastName(),
                 update.getMessage().getFrom().getFirstName(),
+                update.getMessage().getText(),
                 Instant.ofEpochSecond(update.getMessage().getDate()));
     }
 }
