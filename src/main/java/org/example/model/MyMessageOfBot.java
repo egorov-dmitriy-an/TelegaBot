@@ -8,7 +8,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Message {
+public class MyMessageOfBot {
     private Long id;
     private Long chatId;
     private String lastNameAuthor;

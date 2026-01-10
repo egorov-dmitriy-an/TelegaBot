@@ -3,15 +3,13 @@ package org.example.dao.jdbc;
 import org.example.configuration.ConnectionManager;
 import org.example.dao.Dao;
 import org.example.dao.exception.DaoException;
-import org.example.model.Message;
-import org.example.model.Test;
+import org.example.model.MyMessageOfBot;
 
 import java.sql.*;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageJDBCDaoImpl implements Dao<Long, Message> {
+public class MessageJDBCDaoImpl implements Dao<Long, MyMessageOfBot> {
     private static final MessageJDBCDaoImpl INSTANCE = new MessageJDBCDaoImpl();
 
     private static final String CREATE_TABLE_SQL = """
@@ -117,39 +115,39 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
     }
 
     @Override
-    public void update(Message message) {
+    public void update(MyMessageOfBot myMessageOfBot) {
         try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
-            preparedStatement.setLong(1, message.getChatId());
-            preparedStatement.setString(2, message.getLastNameAuthor());
-            preparedStatement.setString(3, message.getFirstNameAuthor());
-            preparedStatement.setString(4, message.getMessage());
-            preparedStatement.setTimestamp(5, Timestamp.from(message.getInstant()));
+            preparedStatement.setLong(1, myMessageOfBot.getChatId());
+            preparedStatement.setString(2, myMessageOfBot.getLastNameAuthor());
+            preparedStatement.setString(3, myMessageOfBot.getFirstNameAuthor());
+            preparedStatement.setString(4, myMessageOfBot.getMessage());
+            preparedStatement.setTimestamp(5, Timestamp.from(myMessageOfBot.getInstant()));
             preparedStatement.executeUpdate();
-            System.out.println("Обновлено сообщение: " + message.getId());
+            System.out.println("Обновлено сообщение: " + myMessageOfBot.getId());
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
     @Override
-    public Message findById(Long id) {
+    public MyMessageOfBot findById(Long id) {
         try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            Message message = null;
+            MyMessageOfBot myMessageOfBot = null;
             if (resultSet.next()) {
-                message = buildMessage(resultSet);
+                myMessageOfBot = buildMessage(resultSet);
             }
-            return message;
+            return myMessageOfBot;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
-    public static Message buildMessage(ResultSet resultSet) throws SQLException {
-        return new Message(
+    public static MyMessageOfBot buildMessage(ResultSet resultSet) throws SQLException {
+        return new MyMessageOfBot(
                 resultSet.getLong("id"),
                 resultSet.getLong("chat_id"),
                 resultSet.getString("last_name"),
@@ -159,11 +157,11 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
     }
 
     @Override
-    public List<Message> findAll() {
+    public List<MyMessageOfBot> findAll() {
         try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ALL_SQL)) {
             ResultSet resultSet = preparedStatement.executeQuery();
-            List<Message> messagesEntitiesList = new ArrayList<>();
+            List<MyMessageOfBot> messagesEntitiesList = new ArrayList<>();
             while (resultSet.next()) {
                 messagesEntitiesList.add(buildMessage(resultSet));
             }
@@ -187,21 +185,21 @@ public class MessageJDBCDaoImpl implements Dao<Long, Message> {
     }
 
     @Override
-    public void save(Message message) {
+    public void save(MyMessageOfBot myMessageOfBot) {
         try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setLong(1, message.getChatId());
-            preparedStatement.setString(2, message.getLastNameAuthor());
-            preparedStatement.setString(3, message.getFirstNameAuthor());
-            preparedStatement.setString(4, message.getMessage());
-            preparedStatement.setTimestamp(5, Timestamp.from(message.getInstant()));
+            preparedStatement.setLong(1, myMessageOfBot.getChatId());
+            preparedStatement.setString(2, myMessageOfBot.getLastNameAuthor());
+            preparedStatement.setString(3, myMessageOfBot.getFirstNameAuthor());
+            preparedStatement.setString(4, myMessageOfBot.getMessage());
+            preparedStatement.setTimestamp(5, Timestamp.from(myMessageOfBot.getInstant()));
             preparedStatement.executeUpdate();
 
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
-                message.setId(generatedKeys.getLong("id"));
+                myMessageOfBot.setId(generatedKeys.getLong("id"));
             }
-            System.out.println("Создано сообщение " + message.getId());
+            System.out.println("Создано сообщение " + myMessageOfBot.getId());
         } catch (SQLException e) {
             throw new DaoException(e);
         }
